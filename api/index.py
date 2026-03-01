@@ -14,52 +14,380 @@ app = FastAPI()
 # Embedded Frontend
 # -------------------------------
 HTML_CONTENT = """<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Foodsby Label Generator</title>
-<style>
-body{font-family:sans-serif;background:#f3f4f6;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}
-.card{background:#fff;padding:30px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.1);width:400px;text-align:center}
-input{margin:15px 0}
-button{padding:10px 20px;background:#4f46e5;color:#fff;border:none;border-radius:6px;cursor:pointer}
-button:hover{opacity:.9}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodsby Label Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 50px 40px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        h1 {
+            color: #1f2937;
+            font-size: 32px;
+            margin-bottom: 8px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        
+        .tagline {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 40px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+        
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 40px 20px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f3f4f8;
+        }
+        
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #ede9fe;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .upload-text {
+            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+        
+        .upload-hint {
+            color: #9ca3af;
+            font-size: 13px;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .file-list {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 24px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #374151;
+        }
+        
+        .file-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .file-name {
+            flex: 1;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .empty-state {
+            color: #9ca3af;
+            font-size: 13px;
+            padding: 8px;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+        }
+        
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            grid-column: 1 / 2;
+        }
+        
+        .btn-generate:hover:not(:disabled) {
+            background: linear-gradient(135deg, #5567d8 0%, #6a3f94 100%);
+            transform: translateY(-2px);
+        }
+        
+        .btn-generate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-clear {
+            background: #e5e7eb;
+            color: #374151;
+            grid-column: 2 / 3;
+        }
+        
+        .btn-clear:hover {
+            background: #d1d5db;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            min-height: 16px;
+            display: none;
+        }
+        
+        .status.show {
+            display: block;
+        }
+        
+        .status.loading {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status.success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 0.8s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-<div class="card">
-<h2>Foodsby Labels</h2>
-<p>Generate A4 (4×2 grid)</p>
-<input type="file" id="files" multiple accept="application/pdf"/>
-<br/>
-<button onclick="generate()">Generate PDF</button>
-</div>
+    <div class="container">
+        <span class="logo">📋</span>
+        <h1>Foodsby Labels</h1>
+        <p class="tagline">Generate print-ready A4 PDFs instantly</p>
+        
+        <div class="upload-area" id="uploadArea">
+            <span class="upload-icon">📄</span>
+            <p class="upload-text">Drop your PDFs here</p>
+            <p class="upload-hint">or click to select files</p>
+        </div>
+        
+        <div class="file-list" id="fileList">
+            <div class="empty-state">No files selected</div>
+        </div>
+        
+        <input type="file" id="fileInput" accept=".pdf" multiple style="display: none;">
+        
+        <div class="button-group">
+            <button class="btn-generate" id="generateBtn" disabled>Generate PDF</button>
+            <button class="btn-clear" id="clearBtn">Clear All</button>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </div>
 
-<script>
-async function generate(){
-    const files = document.getElementById("files").files;
-    if(!files.length) return alert("Select PDF files");
-
-    const formData = new FormData();
-    for(const f of files){ formData.append("files", f); }
-
-    const res = await fetch("/generate", {method:"POST", body:formData});
-    if(!res.ok){
-        const txt = await res.text();
-        alert("Error: " + txt);
-        return;
-    }
-
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "Foodsby_A4_Labels.pdf";
-    a.click();
-    URL.revokeObjectURL(url);
-}
-</script>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const generateBtn = document.getElementById('generateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const status = document.getElementById('status');
+        
+        let selectedFiles = [];
+        
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            selectedFiles = Array.from(e.target.files);
+            updateFileList();
+        });
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            selectedFiles = Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf');
+            fileInput.files = e.dataTransfer.files;
+            updateFileList();
+        });
+        
+        // Update file list
+        function updateFileList() {
+            generateBtn.disabled = selectedFiles.length === 0;
+            
+            if (selectedFiles.length === 0) {
+                fileList.innerHTML = '<div class="empty-state">No files selected</div>';
+                return;
+            }
+            
+            fileList.innerHTML = selectedFiles.map((file, i) => {
+                const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                return `
+                    <div class="file-item">
+                        <span class="file-name">📄 ${file.name}</span>
+                        <span style="color: #9ca3af; font-size: 12px;">${sizeMB}MB</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Clear
+        clearBtn.addEventListener('click', () => {
+            selectedFiles = [];
+            fileInput.value = '';
+            status.classList.remove('show');
+            updateFileList();
+        });
+        
+        // Generate
+        generateBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) return;
+            
+            generateBtn.disabled = true;
+            showStatus('loading', '<span class="spinner"></span>Processing your labels...');
+            
+            try {
+                const formData = new FormData();
+                selectedFiles.forEach(file => formData.append('files', file));
+                
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to generate PDF');
+                }
+                
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Foodsby_A4_Labels.pdf';
+                document.body.appendChild(a);
+                a.click();
+                URL.revokeObjectURL(url);
+                a.remove();
+                
+                showStatus('success', '✓ PDF downloaded successfully!');
+                selectedFiles = [];
+                fileInput.value = '';
+                updateFileList();
+            } catch (error) {
+                showStatus('error', '✗ Error: ' + error.message);
+            } finally {
+                generateBtn.disabled = selectedFiles.length === 0;
+            }
+        });
+        
+        function showStatus(type, message) {
+            status.className = `status ${type} show`;
+            status.innerHTML = message;
+            
+            if (type !== 'loading') {
+                setTimeout(() => status.classList.remove('show'), 3000);
+            }
+        }
+    </script>
 </body>
 </html>
 """
