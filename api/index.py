@@ -544,22 +544,26 @@ def build_a4(labels):
     buffer = BytesIO()
     page_w, page_h = A4
     rows, cols = 5, 2
-    margin_lr = 15  # Left and right margin
+    margin_lr = 5   # Left and right margin (reduced to move left column more left)
     margin_tb = 10  # Top and bottom margin
-    gutter = 8     # Space between columns
+    gutter = 25     # Space between columns (increased for better separation)
 
     usable_w = page_w - (2 * margin_lr) - gutter
     cell_w = usable_w / cols
     cell_h = (page_h - 2 * margin_tb) / rows
 
     c = canvas.Canvas(buffer, pagesize=A4)
+    labels_per_page = rows * cols  # 10 labels per page
 
     for i, img in enumerate(labels):
-        if i % 10 == 0 and i != 0:
+        # Start a new page when needed (but not on the first label)
+        if i > 0 and i % labels_per_page == 0:
             c.showPage()
 
-        row = (i % 10) // cols
-        col = (i % 10) % cols
+        # Calculate position within current page
+        position_on_page = i % labels_per_page
+        row = position_on_page // cols
+        col = position_on_page % cols
 
         # Position with proper margins and gutter
         if col == 0:
