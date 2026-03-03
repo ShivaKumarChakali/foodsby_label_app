@@ -474,18 +474,12 @@ def auto_crop(image: Image.Image) -> Image.Image:
 def extract_labels(pdf_bytes: bytes):
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     labels = []
-    seen = set()
 
     for page in doc:
         text = page.get_text()
         match = re.search(r"Order\s*#\s*(\d+)", text)
         if not match:
             continue
-
-        order_id = match.group(1)
-        if order_id in seen:
-            continue
-        seen.add(order_id)
 
         # Find content bounds using text layout
         text_dict = page.get_text("dict")
