@@ -9,7 +9,7 @@ A simple, fast tool to convert your **Foodsby PDF order files into print-ready l
 ✓ **Drag & Drop Upload** - Easily upload one or multiple PDFs  
 ✓ **Auto-Detection** - Automatically finds and extracts labels by Order #  
 ✓ **Smart Cropping** - Removes whitespace, makes labels crisp and clean  
-✓ **Deduplication** - Removes duplicate orders automatically  
+✓ **All Labels Included** - Preserves all labels, including multiple items per order  
 ✓ **Print-Ready** - Perfect A4 PDF (5 labels per row, 2 columns)  
 ✓ **Fast** - Processes instantly in the cloud  
 ✓ **Free** - No limits, no signup required  
@@ -35,7 +35,7 @@ Open your browser and go to the web interface.
 
 - **Format**: A4 (210mm × 297mm)
 - **Orientation**: Portrait
-- **Margins**: 5-15mm all sides
+- **Margins**: 5pt side margins, 10pt top/bottom, 25pt column spacing
 - **Layout**: 5 rows × 2 columns = 10 labels per page
 - **Resolution**: 300 DPI (professional quality)
 
@@ -50,7 +50,7 @@ Open your browser and go to the web interface.
 💡 **Batch Upload**: Upload 20+ PDFs at once - the generator handles it all  
 💡 **Multiple Pages**: If PDFs have multiple pages, each page is treated as one label  
 💡 **High Quality**: 300 DPI ensures crisp, professional-looking labels  
-💡 **No Duplication**: The app automatically removes duplicate Order #s  
+💡 **All Items Included**: Orders with multiple items will show all labels - no skipping!  
 
 ## Troubleshooting
 
